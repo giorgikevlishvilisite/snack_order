@@ -3,162 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📦 სასკოლო ნამცხვრების შეკვეთები</title>
+<title>📦 Admin Panel</title>
+
 <style>
+
 body{
-  font-family:'Segoe UI',Arial,sans-serif;
-  background:#f0f0f5;
-  margin:0;
-  padding:20px;
-  text-align:center;
+font-family:'Segoe UI',sans-serif;
+background:linear-gradient(120deg,#f6f9fc,#e9eff5);
+margin:0;
 }
+
 header{
-  background: linear-gradient(90deg,#ff6b00,#ff9c00);
-  color:white;
-  padding:25px;
-  font-size:32px;
-  font-weight:bold;
-  text-shadow:1px 1px 2px rgba(0,0,0,0.2);
-  margin-bottom:20px;
+background:linear-gradient(90deg,#ff6b00,#ff9c00);
+color:white;
+text-align:center;
+padding:25px;
+font-size:30px;
+font-weight:bold;
+box-shadow:0 4px 10px rgba(0,0,0,0.2);
 }
-#ordersTable{
-  width:95%;
-  max-width:1000px;
-  margin:auto;
-  border-collapse:collapse;
+
+.container{
+width:90%;
+max-width:1000px;
+margin:30px auto;
 }
-#ordersTable th, #ordersTable td{
-  border:1px solid #ccc;
-  padding:8px;
-  text-align:left;
+
+.dashboard{
+display:flex;
+gap:20px;
+flex-wrap:wrap;
+margin-bottom:25px;
 }
-#ordersTable th{
-  background:#ff6b00;
-  color:white;
+
+.card{
+flex:1;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 6px 15px rgba(0,0,0,0.1);
+text-align:center;
+font-size:18px;
 }
-#ordersTable tr:nth-child(even){background:#fff8f0;}
+
+.orders{
+display:grid;
+gap:15px;
+}
+
+.order{
+background:white;
+padding:18px;
+border-radius:12px;
+box-shadow:0 6px 15px rgba(0,0,0,0.1);
+border-left:6px solid #ff6b00;
+}
+
 button{
-  padding:6px 12px;
-  margin:2px;
-  border:none;
-  border-radius:6px;
-  background:#ff6b00;
-  color:white;
-  font-weight:bold;
-  cursor:pointer;
-  transition:0.3s;
+padding:8px 14px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
 }
-button:hover{background:#e55a00;}
-.deleteBtn{
-  background:#ff3333;
+
+.reset{
+background:#ff6b00;
+color:white;
+margin-bottom:20px;
 }
-.deleteBtn:hover{
-  background:#cc0000;
+
+.reset:hover{
+background:#e65c00;
 }
-input[type="checkbox"]{
-  transform:1.2;
+
+.delete{
+background:#ff3b3b;
+color:white;
 }
-#totalMoney{
-  font-size:18px;
-  font-weight:bold;
-  margin-top:15px;
-  color:#006600;
+
+.delete:hover{
+background:#d90000;
 }
+
+h2{
+margin-top:0;
+}
+
 </style>
 </head>
+
 <body>
 
-<header>📦 სასკოლო ნამცხვრების შეკვეთები</header>
+<header>📦 Snack Shop Admin Panel</header>
 
-<button onclick="downloadJSON()">JSON ფაილის ჩამოტვირთვა</button>
-<button onclick="deleteDelivered()">ჩაბარებული შეკვეთების წაშლა</button>
-<table id="ordersTable">
-<thead>
-<tr>
-<th>#</th>
-<th>ჩაბარებულია</th>
-<th>სახელი</th>
-<th>კლასი</th>
-<th>საფოსტო ლოკერი</th>
-<th>პროდუქტები</th>
-<th>ჯამი ($)</th>
-<th>მოქმედება</th>
-</tr>
-</thead>
-<tbody id="ordersBody"></tbody>
-</table>
+<div class="container">
 
-<p id="totalMoney">ჯამური თანხა: $0.00</p>
+<button class="reset" onclick="resetStock()">📦 Reset Stock</button>
+
+<div class="dashboard">
+
+<div class="card">
+<b>📊 Total Orders</b>
+<br>
+<span id="orderCount">0</span>
+</div>
+
+<div class="card">
+<b>💰 Total Money</b>
+<br>
+₾<span id="money">0</span>
+</div>
+
+</div>
+
+<h2>🧾 Orders</h2>
+
+<div class="orders" id="orders"></div>
+
+</div>
 
 <script>
-// შეკვეთების ჩატვირთვა და რენდერირება
+
 function loadOrders(){
-  let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
-  const tbody=document.getElementById("ordersBody");
-  tbody.innerHTML="";
-  let money=0;
-  allOrders.forEach((order,i)=>{
-    const itemsStr=order.items.map(it=>`${it.name} x${it.qty}`).join(", ");
-    const tr=document.createElement("tr");
 
-    const delivered=order.delivered?true:false;
-    if(delivered) money+=order.total;
+let orders=JSON.parse(localStorage.getItem("allOrders")||"[]")
 
-    tr.innerHTML=`
-      <td>${i+1}</td>
-      <td><input type="checkbox" ${delivered?"checked":""} onchange="toggleDelivered(${i},this)"></td>
-      <td>${order.name}</td>
-      <td>${order.class}</td>
-      <td>${order.locker}</td>
-      <td>${itemsStr}</td>
-      <td>${order.total.toFixed(2)}</td>
-      <td><button class="deleteBtn" onclick="deleteOrder(${i})">წაშლა</button></td>
-    `;
-    tbody.appendChild(tr);
-  });
-  document.getElementById("totalMoney").textContent="ჯამური თანხა: $" + money.toFixed(2);
+const container=document.getElementById("orders")
+
+container.innerHTML=""
+
+let totalMoney=0
+
+document.getElementById("orderCount").textContent=orders.length
+
+orders.forEach((o,index)=>{
+
+let items=""
+
+o.items.forEach(i=>{
+items+=`${i.name} x${i.qty}<br>`
+})
+
+totalMoney+=o.total
+
+let div=document.createElement("div")
+
+div.className="order"
+
+div.innerHTML=`
+
+<b>Order #${o.orderNumber}</b><br>
+👤 Name: ${o.name}<br>
+🏫 Class: ${o.class}<br>
+🔒 Locker: ${o.locker}<br>
+<br>
+<b>Items:</b><br>
+${items}
+<br>
+💰 Total: ₾${o.total}<br><br>
+
+<button class="delete" onclick="deleteOrder(${index})">🗑 Delete</button>
+
+`
+
+container.appendChild(div)
+
+})
+
+document.getElementById("money").textContent=totalMoney
+
 }
 
-// ჩაბარების სტატუსის შეცვლა
-function toggleDelivered(index, checkbox){
-  let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
-  allOrders[index].delivered=checkbox.checked;
-  localStorage.setItem("allOrders",JSON.stringify(allOrders));
-  loadOrders();
-}
-
-// ინდივიდუალური შეკვეთების წაშლა
 function deleteOrder(index){
-  if(!confirm("ნამდვილად გსურთ ამ შეკვეთის წაშლა?")) return;
-  let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
-  allOrders.splice(index,1);
-  localStorage.setItem("allOrders",JSON.stringify(allOrders));
-  loadOrders();
+
+let orders=JSON.parse(localStorage.getItem("allOrders")||"[]")
+
+orders.splice(index,1)
+
+localStorage.setItem("allOrders",JSON.stringify(orders))
+
+loadOrders()
+
 }
 
-// ყველა ჩაბარებული შეკვეთის წაშლა
-function deleteDelivered(){
-  if(!confirm("ნამდვილად გსურთ ყველა ჩაბარებული შეკვეთის წაშლა?")) return;
-  let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
-  allOrders=allOrders.filter(o=>!o.delivered);
-  localStorage.setItem("allOrders",JSON.stringify(allOrders));
-  loadOrders();
+function resetStock(){
+
+if(!confirm("Reset all stock to 6?")) return
+
+let snacks=[
+
+{name:"M&M's",price:5,stock:6},
+{name:"Snickers",price:3,stock:6},
+{name:"საღეჭი რეზინი",price:2,stock:6},
+{name:"კოკაკოლა",price:6,stock:6},
+{name:"Skittles",price:4,stock:6},
+{name:"Tik Tak",price:3,stock:6}
+
+]
+
+localStorage.setItem("snackStock", JSON.stringify(snacks))
+
+alert("Stock reset to 6")
+
 }
 
-// JSON ფაილის ჩამოტვირთვა
-function downloadJSON(){
-  const allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
-  if(allOrders.length===0){alert("შეკვეთები არ მოიძებნა."); return;}
-  const blob=new Blob([JSON.stringify(allOrders,null,2)], {type:"application/json"});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");
-  a.href=url;
-  a.download="snack_orders.json";
-  a.click();
-  URL.revokeObjectURL(url);
-}
+loadOrders()
 
-loadOrders();
 </script>
+
 </body>
 </html>
