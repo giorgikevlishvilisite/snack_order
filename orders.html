@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ka">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📦 Snack Orders Admin</title>
+<title>📦 სასკოლო ნამცხვრების შეკვეთები</title>
 <style>
 body{
   font-family:'Segoe UI',Arial,sans-serif;
@@ -68,30 +68,30 @@ input[type="checkbox"]{
 </head>
 <body>
 
-<header>📦 Snack Orders Admin</header>
+<header>📦 სასკოლო ნამცხვრების შეკვეთები</header>
 
-<button onclick="downloadJSON()">Download JSON File</button>
-<button onclick="deleteDelivered()">Delete Delivered Orders</button>
+<button onclick="downloadJSON()">JSON ფაილის ჩამოტვირთვა</button>
+<button onclick="deleteDelivered()">ჩაბარებული შეკვეთების წაშლა</button>
 <table id="ordersTable">
 <thead>
 <tr>
 <th>#</th>
-<th>Delivered</th>
-<th>Name</th>
-<th>Class</th>
-<th>Locker</th>
-<th>Items</th>
-<th>Total ($)</th>
-<th>Action</th>
+<th>ჩაბარებულია</th>
+<th>სახელი</th>
+<th>კლასი</th>
+<th>საფოსტო ლოკერი</th>
+<th>პროდუქტები</th>
+<th>ჯამი ($)</th>
+<th>მოქმედება</th>
 </tr>
 </thead>
 <tbody id="ordersBody"></tbody>
 </table>
 
-<p id="totalMoney">Total Money Collected: $0.00</p>
+<p id="totalMoney">ჯამური თანხა: $0.00</p>
 
 <script>
-// Load and render orders
+// შეკვეთების ჩატვირთვა და რენდერირება
 function loadOrders(){
   let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
   const tbody=document.getElementById("ordersBody");
@@ -101,7 +101,6 @@ function loadOrders(){
     const itemsStr=order.items.map(it=>`${it.name} x${it.qty}`).join(", ");
     const tr=document.createElement("tr");
 
-    // Check if order is delivered
     const delivered=order.delivered?true:false;
     if(delivered) money+=order.total;
 
@@ -113,14 +112,14 @@ function loadOrders(){
       <td>${order.locker}</td>
       <td>${itemsStr}</td>
       <td>${order.total.toFixed(2)}</td>
-      <td><button class="deleteBtn" onclick="deleteOrder(${i})">Delete</button></td>
+      <td><button class="deleteBtn" onclick="deleteOrder(${i})">წაშლა</button></td>
     `;
     tbody.appendChild(tr);
   });
-  document.getElementById("totalMoney").textContent="Total Money Collected: $" + money.toFixed(2);
+  document.getElementById("totalMoney").textContent="ჯამური თანხა: $" + money.toFixed(2);
 }
 
-// Toggle delivered status
+// ჩაბარების სტატუსის შეცვლა
 function toggleDelivered(index, checkbox){
   let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
   allOrders[index].delivered=checkbox.checked;
@@ -128,28 +127,28 @@ function toggleDelivered(index, checkbox){
   loadOrders();
 }
 
-// Delete a specific order
+// ინდივიდუალური შეკვეთების წაშლა
 function deleteOrder(index){
-  if(!confirm("Are you sure you want to delete this order?")) return;
+  if(!confirm("ნამდვილად გსურთ ამ შეკვეთის წაშლა?")) return;
   let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
   allOrders.splice(index,1);
   localStorage.setItem("allOrders",JSON.stringify(allOrders));
   loadOrders();
 }
 
-// Delete all delivered orders
+// ყველა ჩაბარებული შეკვეთის წაშლა
 function deleteDelivered(){
-  if(!confirm("Delete all delivered orders?")) return;
+  if(!confirm("ნამდვილად გსურთ ყველა ჩაბარებული შეკვეთის წაშლა?")) return;
   let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
   allOrders=allOrders.filter(o=>!o.delivered);
   localStorage.setItem("allOrders",JSON.stringify(allOrders));
   loadOrders();
 }
 
-// Download JSON file
+// JSON ფაილის ჩამოტვირთვა
 function downloadJSON(){
   const allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
-  if(allOrders.length===0){alert("No orders to download"); return;}
+  if(allOrders.length===0){alert("შეკვეთები არ მოიძებნა."); return;}
   const blob=new Blob([JSON.stringify(allOrders,null,2)], {type:"application/json"});
   const url=URL.createObjectURL(blob);
   const a=document.createElement("a");
