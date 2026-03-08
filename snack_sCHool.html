@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>School Snack Shop</title>
+<style>
+body{font-family:Arial;background:#f4f4f4;text-align:center;margin:0;}
+header{background:#ff6b00;color:white;padding:20px;font-size:28px;}
+.container{width:90%;margin:auto;}
+.products{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px;margin-top:20px;}
+.card{background:white;padding:15px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);}
+button{background:#ff6b00;border:none;padding:10px;color:white;border-radius:5px;cursor:pointer;}
+#cart{margin-top:40px;background:white;padding:20px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);}
+#orderPopup{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:white;padding:20px;border-radius:10px;box-shadow:0 0 15px rgba(0,0,0,0.3);width:300px;}
+.lockerGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.locker{background:#ddd;padding:15px;border-radius:5px;cursor:pointer;}
+.locker.selected{background:#ff6b00;color:white;}
+</style>
+</head>
+<body>
+
+<header>🍿 School Snack Shop</header>
+
+<div class="container">
+<h2>Snacks</h2>
+<div class="products" id="products"></div>
+
+<div id="cart">
+<h2>Cart</h2>
+<ul id="cartItems"></ul>
+<h3>Total: $<span id="total">0</span></h3>
+<button onclick="openPopup()">Pay at School</button>
+</div>
+</div>
+
+<div id="orderPopup">
+<h3>Order Info</h3>
+<input id="studentName" placeholder="Your name"><br>
+<input id="classInput" placeholder="Class (6E)">
+<h4>Select Locker</h4>
+<div class="lockerGrid" id="lockers"></div>
+<br>
+<button onclick="submitOrder()">Confirm Order</button>
+<p id="popupMessage"></p>
+</div>
+
+<script>
+const snacks=[
+{name:"Chips",price:2},
+{name:"Chocolate",price:3},
+{name:"Cookies",price:2.5},
+{name:"Soda",price:1.5},
+{name:"Candy",price:1},
+{name:"Popcorn",price:2}
+];
+
+let cart={}, selectedLocker=null;
+
+function renderProducts(){
+const container=document.getElementById("products");
+snacks.forEach((s,i)=>{
+const card=document.createElement("div");
+card.className="card";
+card.innerHTML=`<h3>${s.name}</h3><p>$${s.price}</p><button onclick="addToCart(${i})">Add</button>`;
+container.appendChild(card);
+});
+}
+
+function addToCart(i){
+const item=snacks[i];
+if(cart[item.name]) cart[item.name].qty++;
+else cart[item.name]={price:item.price, qty:1};
+updateCart();
+}
+
+function updateCart(){
+const list=document.getElementById("cartItems");
+list.innerHTML="";
+let sum=0;
+for(const i in cart){
+const d=cart[i];
+list.innerHTML+=`<li>${i} x${d.qty}</li>`;
+sum+=d.price*d.qty;
+}
+document.getElementById("total").textContent=sum.toFixed(2);
+}
+
+function openPopup(){
+if(Object.keys(cart).length===0){
+alert("Cart is empty!");
+return;
+}
+document.getElementById("orderPopup").style.display="block";
+}
+
+function renderLockers(){
+const g=document.getElementById("lockers");
+for(let i=1;i<=9;i++){
+const l=document.createElement("div");
+l.className="locker";
+l.textContent=i;
+l.onclick=()=>{
+document.querySelectorAll(".locker").forEach(x=>x.classList.remove("selected"));
+l.classList.add("selected");
+selectedLocker=i;
+};
+g.appendChild(l);
+}
+}
+
+function submitOrder(){
+const name=document.getElementById("studentName").value.trim();
+const cls=document.getElementById("classInput").value.toUpperCase().trim();
+if(name===""){document.getElementById("popupMessage").textContent="Enter name";return;}
+if(!/^6[A-Z]$/.test(cls)){document.getElementById("popupMessage").textContent="Class must look like 6E";return;}
+if(selectedLocker===null){document.getElementById("popupMessage").textContent="Select locker";return;}
+
+let items=[], total=0;
+for(const i in cart){
+const d=cart[i];
+items.push({name:i, qty:d.qty, price:d.price});
+total+=d.price*d.qty;
+}
+
+const order={
+name:name,
+class:cls,
+locker:selectedLocker,
+items:items,
+total:total
+};
+
+const blob=new Blob([JSON.stringify(order, null,2)],{type:"application/json"});
+const url=URL.createObjectURL(blob);
+const a=document.createElement("a");
+a.href=url;
+a.download=`order_${Date.now()}.json`;
+document.body.appendChild(a);
+a.click();
+document.body.removeChild(a);
+
+cart={}; selectedLocker=null;
+updateCart();
+document.getElementById("orderPopup").style.display="none";
+document.getElementById("popupMessage").textContent="";
+alert("Order file downloaded! Bring the money to school.");
+}
+
+renderProducts();
+renderLockers();
+</script>
+</body>
+</html>
