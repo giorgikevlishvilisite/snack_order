@@ -1,51 +1,165 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Snack Orders</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📦 Snack Orders Admin</title>
 <style>
-body{font-family:Arial;background:#f4f4f4;text-align:center;}
-h1{margin-top:20px;}
-#dropArea{border:2px dashed #ff6b00;padding:30px;margin:20px;width:80%;margin:auto;}
-.order{background:white;padding:15px;margin:15px;border-radius:10px;box-shadow:0 0 10px rgba(0,0,0,0.1);text-align:left;}
+body{
+  font-family:'Segoe UI',Arial,sans-serif;
+  background:#f0f0f5;
+  margin:0;
+  padding:20px;
+  text-align:center;
+}
+header{
+  background: linear-gradient(90deg,#ff6b00,#ff9c00);
+  color:white;
+  padding:25px;
+  font-size:32px;
+  font-weight:bold;
+  text-shadow:1px 1px 2px rgba(0,0,0,0.2);
+  margin-bottom:20px;
+}
+#ordersTable{
+  width:95%;
+  max-width:1000px;
+  margin:auto;
+  border-collapse:collapse;
+}
+#ordersTable th, #ordersTable td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:left;
+}
+#ordersTable th{
+  background:#ff6b00;
+  color:white;
+}
+#ordersTable tr:nth-child(even){background:#fff8f0;}
+button{
+  padding:6px 12px;
+  margin:2px;
+  border:none;
+  border-radius:6px;
+  background:#ff6b00;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+  transition:0.3s;
+}
+button:hover{background:#e55a00;}
+.deleteBtn{
+  background:#ff3333;
+}
+.deleteBtn:hover{
+  background:#cc0000;
+}
+input[type="checkbox"]{
+  transform:1.2;
+}
+#totalMoney{
+  font-size:18px;
+  font-weight:bold;
+  margin-top:15px;
+  color:#006600;
+}
 </style>
 </head>
 <body>
 
-<h1>Snack Orders</h1>
-<div id="dropArea">Drag & Drop all order JSON files here</div>
-<div id="ordersContainer"></div>
+<header>📦 Snack Orders Admin</header>
+
+<button onclick="downloadJSON()">Download JSON File</button>
+<button onclick="deleteDelivered()">Delete Delivered Orders</button>
+<table id="ordersTable">
+<thead>
+<tr>
+<th>#</th>
+<th>Delivered</th>
+<th>Name</th>
+<th>Class</th>
+<th>Locker</th>
+<th>Items</th>
+<th>Total ($)</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="ordersBody"></tbody>
+</table>
+
+<p id="totalMoney">Total Money Collected: $0.00</p>
 
 <script>
-const dropArea=document.getElementById("dropArea");
-const ordersContainer=document.getElementById("ordersContainer");
+// Load and render orders
+function loadOrders(){
+  let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
+  const tbody=document.getElementById("ordersBody");
+  tbody.innerHTML="";
+  let money=0;
+  allOrders.forEach((order,i)=>{
+    const itemsStr=order.items.map(it=>`${it.name} x${it.qty}`).join(", ");
+    const tr=document.createElement("tr");
 
-dropArea.addEventListener("dragover", e=>{e.preventDefault();});
-dropArea.addEventListener("drop", e=>{
-e.preventDefault();
-const files=e.dataTransfer.files;
-for(const file of files){
-const reader=new FileReader();
-reader.onload=function(evt){
-try{
-const order=JSON.parse(evt.target.result);
-const div=document.createElement("div");
-div.className="order";
-let itemsText="";
-order.items.forEach(it=>{itemsText+=`${it.name} x${it.qty}, `;});
-div.innerHTML=`<b>Name:</b> ${order.name}<br>
-<b>Class:</b> ${order.class}<br>
-<b>Locker:</b> ${order.locker}<br>
-<b>Items:</b> ${itemsText}<br>
-<b>Total:</b> $${order.total.toFixed(2)}`;
-ordersContainer.appendChild(div);
-}catch(err){
-console.error("Invalid file",file.name);
+    // Check if order is delivered
+    const delivered=order.delivered?true:false;
+    if(delivered) money+=order.total;
+
+    tr.innerHTML=`
+      <td>${i+1}</td>
+      <td><input type="checkbox" ${delivered?"checked":""} onchange="toggleDelivered(${i},this)"></td>
+      <td>${order.name}</td>
+      <td>${order.class}</td>
+      <td>${order.locker}</td>
+      <td>${itemsStr}</td>
+      <td>${order.total.toFixed(2)}</td>
+      <td><button class="deleteBtn" onclick="deleteOrder(${i})">Delete</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("totalMoney").textContent="Total Money Collected: $" + money.toFixed(2);
 }
-};
-reader.readAsText(file);
+
+// Toggle delivered status
+function toggleDelivered(index, checkbox){
+  let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
+  allOrders[index].delivered=checkbox.checked;
+  localStorage.setItem("allOrders",JSON.stringify(allOrders));
+  loadOrders();
 }
-});
+
+// Delete a specific order
+function deleteOrder(index){
+  if(!confirm("Are you sure you want to delete this order?")) return;
+  let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
+  allOrders.splice(index,1);
+  localStorage.setItem("allOrders",JSON.stringify(allOrders));
+  loadOrders();
+}
+
+// Delete all delivered orders
+function deleteDelivered(){
+  if(!confirm("Delete all delivered orders?")) return;
+  let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
+  allOrders=allOrders.filter(o=>!o.delivered);
+  localStorage.setItem("allOrders",JSON.stringify(allOrders));
+  loadOrders();
+}
+
+// Download JSON file
+function downloadJSON(){
+  const allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
+  if(allOrders.length===0){alert("No orders to download"); return;}
+  const blob=new Blob([JSON.stringify(allOrders,null,2)], {type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="snack_orders.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+loadOrders();
 </script>
-
 </body>
 </html>
