@@ -1,31 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ka">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🍿 School Snack Shop</title>
+<title>🍿 სასკოლო ნამცხვრების მაღაზია</title>
 <style>
-/* ===== General ===== */
 body{
-  font-family: 'Segoe UI', Arial, sans-serif;
+  font-family:'Segoe UI',Arial,sans-serif;
   margin:0;
-  background: linear-gradient(to bottom, #f0f0f5, #ffffff);
+  background: linear-gradient(to bottom,#f0f0f5,#ffffff);
   text-align:center;
 }
-h2{color:#ff6b00; margin-bottom:10px;}
-
-/* ===== Header ===== */
 header{
-  background: linear-gradient(90deg, #ff6b00, #ff9c00);
+  background: linear-gradient(90deg,#ff6b00,#ff9c00);
   color:white;
   padding:30px 10px;
   font-size:36px;
   font-weight:bold;
-  text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  text-shadow:1px 1px 3px rgba(0,0,0,0.2);
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
-
-/* ===== Products ===== */
 .products{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
@@ -37,16 +31,13 @@ header{
   background:white;
   border-radius:15px;
   box-shadow:0 8px 20px rgba(0,0,0,0.1);
-  padding:15px;
+  padding:20px;
   transition: transform 0.3s, box-shadow 0.3s;
+  font-size:18px;
 }
 .card:hover{
   transform: translateY(-10px);
   box-shadow:0 12px 25px rgba(0,0,0,0.2);
-}
-.card img{
-  width:100%;
-  border-radius:12px;
 }
 .card button{
   margin-top:10px;
@@ -62,8 +53,6 @@ header{
 .card button:hover{
   background:#e55a00;
 }
-
-/* ===== Cart ===== */
 #cart{
   margin:30px auto;
   background:white;
@@ -86,9 +75,7 @@ header{
   margin-top:10px;
 }
 #cart button:hover{background:#e55a00;}
-#cart ul{list-style:none;padding-left:0; margin-bottom:0;}
-
-/* ===== Order Popup ===== */
+#cart ul{list-style:none;padding-left:0;margin-bottom:0;}
 #orderPopup{
   display:none;
   position:fixed;
@@ -105,8 +92,8 @@ header{
   animation: popup 0.3s ease-out;
 }
 @keyframes popup{
-  0%{transform:translate(-50%,-50%) scale(0.8); opacity:0;}
-  100%{transform:translate(-50%,-50%) scale(1); opacity:1;}
+  0%{transform:translate(-50%,-50%) scale(0.8);opacity:0;}
+  100%{transform:translate(-50%,-50%) scale(1);opacity:1;}
 }
 input{
   width:80%;
@@ -116,9 +103,7 @@ input{
   border:1px solid #ccc;
   font-size:15px;
 }
-#msg{color:red; font-weight:bold; margin-top:5px;}
-
-/* ===== Locker Grid ===== */
+#msg{color:red;font-weight:bold;margin-top:5px;}
 .lockerGrid{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -143,8 +128,6 @@ input{
   color:white;
   box-shadow:0 0 10px #ff6b00aa;
 }
-
-/* ===== Responsive ===== */
 @media(max-width:500px){
   .locker{width:50px;height:50px;line-height:50px;}
 }
@@ -152,35 +135,35 @@ input{
 </head>
 <body>
 
-<header>🍿 School Snack Shop</header>
+<header>🍿 სასკოლო ნამცხვრების მაღაზია</header>
 
 <div class="products" id="products"></div>
 
 <div id="cart">
-<h3>Cart</h3>
+<h3>კალათა</h3>
 <ul id="cartItems"></ul>
-Total: $<span id="total">0</span><br>
-<button onclick="openPopup()">Pay at School</button>
+ჯამი: ₾<span id="total">0</span><br>
+<button onclick="openPopup()">გადასახდელად სკოლაში</button>
 </div>
 
 <div id="orderPopup">
-<h3>Order Info</h3>
-<input id="name" placeholder="Your name"><br>
-<input id="cls" placeholder="Class (6A,6B,6G,6D,6E,6V)"><br>
-<h4>Select Locker</h4>
+<h3>შეკვეთის ინფორმაცია</h3>
+<input id="name" placeholder="შეიყვანეთ სახელი"><br>
+<input id="cls" placeholder="კლასი (6A,6B,6G,6D,6E,6V)"><br>
+<h4>აირჩიეთ ლოკერი</h4>
 <div class="lockerGrid" id="lockers"></div><br>
-<button onclick="submitOrder()">Confirm Order</button>
+<button onclick="submitOrder()">დაადასტურეთ შეკვეთა</button>
 <p id="msg"></p>
 </div>
 
 <script>
 const snacks=[
-{name:"Chips",price:2,img:"https://i.imgur.com/3QK5TXY.png"},
-{name:"Chocolate",price:3,img:"https://i.imgur.com/Yzn1l9Y.png"},
-{name:"Cookies",price:2.5,img:"https://i.imgur.com/J9zzhKc.png"},
-{name:"Soda",price:1.5,img:"https://i.imgur.com/IZNFRyA.png"},
-{name:"Candy",price:1,img:"https://i.imgur.com/N5tq2Qw.png"},
-{name:"Popcorn",price:2,img:"https://i.imgur.com/8Mbt6Zl.png"}
+{name:"M&M's",price:5},
+{name:"Snickers",price:3},
+{name:"საღეჭი რეზინი",price:2},
+{name:"კოკაკოლა",price:6},
+{name:"Skittles",price:4},
+{name:"Tik Tak",price:3}
 ];
 
 let cart={}, locker=null;
@@ -192,7 +175,7 @@ const p=document.getElementById("products");
 snacks.forEach((s,i)=>{
 const div=document.createElement("div");
 div.className="card";
-div.innerHTML=`<img src="${s.img}" alt="${s.name}"><b>${s.name}</b><br>$${s.price}<br><button onclick="add(${i})">Add</button>`;
+div.innerHTML=`<b>${s.name}</b><br>₾${s.price}<br><button onclick="add(${i})">დაამატე</button>`;
 p.appendChild(div);
 });
 }
@@ -201,7 +184,7 @@ function add(i){
 const item=snacks[i];
 if(cart[item.name]){
   if(cart[item.name].qty>=maxPerSnack){
-    alert(`You can only buy up to ${maxPerSnack} of ${item.name}`);
+    alert(`შეგიძლიათ დაამატოთ მხოლოდ ${maxPerSnack} ${item.name}`);
     return;
   }
   cart[item.name].qty++;
@@ -219,7 +202,7 @@ document.getElementById("total").textContent=sum.toFixed(2);
 }
 
 function openPopup(){
-if(Object.keys(cart).length===0){alert("Cart is empty!"); return;}
+if(Object.keys(cart).length===0){alert("კალათა ცარიელია!"); return;}
 document.getElementById("orderPopup").style.display="block";
 }
 
@@ -238,16 +221,16 @@ g.appendChild(l);
 function submitOrder(){
 const name=document.getElementById("name").value.trim();
 let cls=document.getElementById("cls").value.trim().toUpperCase();
-if(!name){document.getElementById("msg").textContent="Enter name";return;}
-if(!validClasses.includes(cls)){document.getElementById("msg").textContent="Class must be 6A,6B,6G,6D,6E,6V";return;}
-if(!locker){document.getElementById("msg").textContent="Select locker";return;}
+if(!name){document.getElementById("msg").textContent="შეიყვანეთ სახელი";return;}
+if(!validClasses.includes(cls)){document.getElementById("msg").textContent="კლასი უნდა იყოს 6A,6B,6G,6D,6E,6V";return;}
+if(!locker){document.getElementById("msg").textContent="აირჩიეთ ლოკერი";return;}
 let items=[], total=0;
 for(const k in cart){const d=cart[k]; items.push({name:k,qty:d.qty,price:d.price}); total+=d.price*d.qty;}
-let order={name:name,class:cls,locker:locker,items:items,total:total};
+let order={name:name,class:cls,locker:locker,items:items,total:total,delivered:false};
 let allOrders=JSON.parse(localStorage.getItem("allOrders")||"[]");
 allOrders.push(order); localStorage.setItem("allOrders",JSON.stringify(allOrders));
 cart={}; locker=null; updateCart(); document.getElementById("orderPopup").style.display="none"; document.getElementById("msg").textContent="";
-alert("Order saved! Bring $" + total.toFixed(2) + " to school.");
+alert("შეკვეთა შენახულია! სკოლის ლოკერში გადმოიტანეთ ₾" + total.toFixed(2));
 }
 
 renderProducts(); renderLockers();
